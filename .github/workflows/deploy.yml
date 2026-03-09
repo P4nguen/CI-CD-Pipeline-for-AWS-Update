@@ -1,0 +1,26 @@
+name: AWS S3 Otomatik Dagitim
+
+# Ne zaman çalışsın? 'main' dalına yeni bir kod geldiğinde.
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # GitHub'ın arkada açacağı geçici bilgisayar
+
+    steps:
+      - name: 1. Kodu GitHub'dan Al
+        uses: actions/checkout@v3
+
+      - name: 2. AWS'ye Giriş Yap (Senin eklediğin gizli şifrelerle)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1 # Kovanın bulunduğu bölge
+
+      - name: 3. Dosyaları S3 Kovasına Gönder
+        run: |
+          aws s3 sync . s3://p4nguen-aws-code-update-16 --exclude ".git/*" --exclude ".github/*"
