@@ -133,6 +133,6 @@ async function updateVisitorCount() {
 updateVisitorCount();
 ```
 
-2. Commit and push — GitHub Actions will deploy your fully functional serverless architecture. ✨
+2. Commit and push — GitHub Actions will deploy your fully functional serverless architecture.
 
 ---
