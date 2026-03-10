@@ -172,11 +172,31 @@
     <script>
         async function updateVisitorCount() {
             try {
-                // Senin Lambda fonksiyonunu tetikleyen API linki
-                const response = await fetch('https://e4ozgtn2r7.execute-api.eu-north-1.amazonaws.com/default/VisitorCounter');
+                // Su anki saati milisaniye cinsinden al
+                const now = new Date().getTime();
+                // Tarayicinin hafizasindan (Local Storage) son ziyaret saatini cek
+                const lastVisit = localStorage.getItem('lastVisitTime');
+                // 5 Dakikanin milisaniye karsiligi (5 * 60 * 1000)
+                const fiveMinutes = 300000; 
+                
+                let action = 'increment'; // Varsayilan olarak sayici artir
+                
+                // Eger daha once girdiyse VE uzerinden 5 dakika gecmediyse
+                if (lastVisit && (now - lastVisit < fiveMinutes)) {
+                    action = 'read'; // Lambda'ya "Sadece oku, artirma" komutunu ver
+                    console.log("5 dakika dolmadi, spam korumasi devrede. Sadece guncel sayi cekiliyor.");
+                } else {
+                    // Yeni girisse veya 5 dakika gectiyse hafizadaki saati guncelle
+                    localStorage.setItem('lastVisitTime', now);
+                }
+
+                // API linkimizin sonuna parametreyi ekliyoruz (?action=read veya ?action=increment)
+                const apiUrl = `https://e4ozgtn2r7.execute-api.eu-north-1.amazonaws.com/default/VisitorCounter?action=${action}`;
+                
+                const response = await fetch(apiUrl);
                 const data = await response.json();
                 
-                // Gelen sayiyi ekrandaki rozete yaz
+                // Ekrana yazdir
                 document.getElementById('visitorCount').innerText = '👁️ Visitors: ' + data.visit_count;
             } catch (error) {
                 console.error('API baglanti hatasi:', error);
@@ -184,7 +204,6 @@
             }
         }
         
-        // Sayfa yuklendiginde fonksiyonu calistir
         updateVisitorCount();
     </script>
 </body>
